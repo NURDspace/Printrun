@@ -431,7 +431,7 @@ class pronsole(cmd.Cmd):
         self.p.startcb = self.startcb
         self.p.endcb = self.endcb
         self.p.layerchangecb = self.layer_change_cb
-        self.recvlisteners = []
+        self.recvlisteners = [self.broadcasttemp]
         self.in_macro = False
         self.p.onlinecb = self.online
         self.p.errorcb = self.logError
@@ -887,6 +887,19 @@ class pronsole(cmd.Cmd):
         else:
             return []
 
+    def broadcasttemp(self, l): #PATCH This is the transmit section.
+        if "T:" in l:
+            exttemp = re.search('T:(\S*)',l).group(1)
+            bedtemp = re.search('B:(\S*)',l).group(1)
+            s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+            try:
+                s.connect(('tankstation', 55555))
+                s.sendall('NRD'+self.p.printername+'e'+':'+exttemp+';'+self.p.printername+'b'+':'+bedtemp)
+            except:
+                print('NURDBot connection failure')
+            finally:
+                s.close()
+            
     def do_disconnect(self, l):
         self.p.disconnect()
 

@@ -99,6 +99,7 @@ class printcore():
         self.greetings = ['start', 'Grbl ']
         self.wait = 0  # default wait period for send(), send_now()
         self.read_thread = None
+        self.printername='' #PATCH
         self.stop_read_thread = False
         self.send_thread = None
         self.stop_send_thread = False
@@ -295,6 +296,8 @@ class printcore():
                 break
             if line.startswith('DEBUG_'):
                 continue
+            if 'Author:' in line:
+                self.printername = re.search('Author: (\w+)',line).group(1) #PATCH - Get name of author forprintername
             if line.startswith(tuple(self.greetings)) or line.startswith('ok'):
                 self.clear = True
             if line.startswith('ok') and "T:" in line and self.tempcb:
